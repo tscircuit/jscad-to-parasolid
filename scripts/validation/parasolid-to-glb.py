@@ -10,6 +10,9 @@ import json
 import struct
 from pathlib import Path
 
+from glb_metrics import audit_glb_mesh
+from native_colors import apply_native_colors
+
 from parasolid_kit import read_brep
 from parasolid_kit.interop.occt import to_occt
 from parasolid_kit.interop.preview import (
@@ -74,9 +77,12 @@ def main():
         ),
     )
     glb = glb_millimeters_to_meters(preview.glb)
+    glb, report["native_colors"] = apply_native_colors(glb, preview.manifest, parsed)
     validation = validate_glb_bytes(glb)
     if not validation.valid or preview.missing_face_count or not preview.triangle_count:
         raise ValueError("OCCT did not tessellate all faces into a valid GLB")
+    # Check the emitted buffers, not just OCCT's pre-tessellation B-Rep metrics.
+    report["mesh_validation"] = audit_glb_mesh(glb, preview.manifest, report["metrics"])
     report["preview"] = {
         "triangle_count": preview.triangle_count,
         "vertex_count": preview.vertex_count,

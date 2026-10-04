@@ -55,10 +55,20 @@ export function splitConnectedShells(polygons: Point3[][]): Point3[][][] {
     else groups.set(root, [polygon])
   })
   const shells = [...groups.values()]
+  // Some renderer-recorded extrusions have the entire boundary reversed. A
+  // single connected shell can safely be oriented outward, as the writer also
+  // does. An inward component alongside other shells may describe a cavity and
+  // must not silently become an additional filled solid.
+  if (shells.length === 1 && signedVolume(shells[0]!) < 0) {
+    // These are fresh normalized arrays. Retain their identity so callers can
+    // map polygon metadata (such as face color) through shell separation.
+    for (const polygon of shells[0]!) polygon.reverse()
+    return shells
+  }
   for (const shell of shells) {
     if (signedVolume(shell) < 0) {
       throw new Error(
-        "Inward-facing shell: enclosed cavity shells and reversed solids are not supported",
+        "Inward-facing component: enclosed cavity shells are not supported",
       )
     }
   }

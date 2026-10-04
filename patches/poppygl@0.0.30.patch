@@ -1,0 +1,26 @@
+diff --git a/dist/index.js b/dist/index.js
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -880,8 +880,10 @@
+           if (z01 < 0 || z01 > 1) continue;
+           const di = y * this.width + x;
+           const depth = this.depth;
+-          if (z01 >= depth[di]) continue;
+-          depth[di] = z01;
++          // Float32 vertex/depth rounding can otherwise stripe coplanar faces.
++          // Later fragments win ties within this normalized-depth error budget.
++          if (z01 > depth[di] + 2 ** -22) continue;
++          depth[di] = Math.min(depth[di], z01);
+           let baseColor = [
+             material.baseColorFactor[0],
+             material.baseColorFactor[1],
+@@ -943,7 +945,8 @@
+           }
+           const shouldWriteDepth = alphaMode !== "BLEND";
+           if (shouldWriteDepth) {
+-            depth[di] = z01;
++            // Keep the nearest depth so successive ties cannot drift backward.
++            depth[di] = Math.min(depth[di], z01);
+           }
+           if (gammaOut) {
+             r = srgbEncodeLinear01(clamp(r, 0, 1));

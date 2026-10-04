@@ -34,6 +34,9 @@
   "dependencies": {
     "@jscad/modeling": "^2.12.6",
     "jscad-planner": "^0.0.18",
-    "parasolidts": "github:tscircuit/parasolidts#ef5a5cf4fad36291105a1fe6841492455783524f"
+    "parasolidts": "github:tscircuit/parasolidts#a9a3ce6847919cd3911f97d24e796a307fa15e10"
+  },
+  "patchedDependencies": {
+    "poppygl@0.0.30": "patches/poppygl@0.0.30.patch"
   }
 }

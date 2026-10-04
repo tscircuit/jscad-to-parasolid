@@ -5,11 +5,12 @@ text (`.x_t`) files. Uses [parasolidts](https://github.com/tscircuit/parasolidts
 to write a boundary representation with planar faces and shared edges.
 
 This initial implementation exports closed, orientable polygon solids. JSCAD
-curves retain their polygon facets. Colors, analytic curves, enclosed cavity
-shells, assemblies with constraints, and feature history are not exported.
+curves retain their polygon facets. RGB body and face colors are preserved.
+Analytic curves, enclosed cavity shells, assemblies with constraints, and feature
+history are not exported.
 Separate solids remain separate bodies.
 
-![Modelprinter NEMA8 motor after native X_T import, OCCT tessellation, and poppygl rendering](tests/visual/__snapshots__/modelprinter-nema8.snap.png)
+![Modelprinter NEMA17 motor after native X_T import, OCCT tessellation, and poppygl rendering](tests/visual/__snapshots__/catalog-nema17.snap.png)
 
 ## Install
 
@@ -23,12 +24,12 @@ convention. Use Bun or a TypeScript-aware bundler.
 ## Export a model
 
 ```ts
-import jscad from "@jscad/modeling"
+import { jscadPlanner } from "jscad-planner"
 import { jscadToParasolid } from "jscad-to-parasolid"
 
-const model = jscad.booleans.subtract(
-  jscad.primitives.cuboid({ size: [20, 16, 6] }),
-  jscad.primitives.cylinder({ radius: 3, height: 10, segments: 24 }),
+const model = jscadPlanner.booleans.subtract(
+  jscadPlanner.primitives.cuboid({ size: [20, 16, 6] }),
+  jscadPlanner.primitives.cylinder({ radius: 3, height: 10, segments: 24 }),
 )
 
 await Bun.write("bracket.x_t", jscadToParasolid(model))
@@ -37,9 +38,14 @@ await Bun.write("bracket.x_t", jscadToParasolid(model))
 Input dimensions default to millimeters and are converted to Parasolid meters.
 Pass `{ units: "m" }` for geometry already expressed in meters.
 
+The public operation API uses `jscad-planner`. Like `jscad-to-step`, the
+converter evaluates that plan internally with `@jscad/modeling` before writing
+the native boundary representation.
+
 Accepted inputs are a `jscad-planner` operation, a JSCAD `geom3`, an array of
-`geom3` solids, or a rendered model shaped like
-`{ geometries: [{ geom, color? }] }`. Pending transforms are applied without
+either, or a rendered model shaped like
+`{ geometries: [{ geom, color? }] }`, where `geom` can also be a planner operation.
+Pending transforms are applied without
 mutating the input. Empty entries in a rendered model are ignored; an entirely
 empty model fails with an error.
 
@@ -50,13 +56,14 @@ bun add jscad-electronics
 ```
 
 ```ts
-import jscad from "@jscad/modeling"
+import { jscadPlanner } from "jscad-planner"
 import { getJscadModelForFootprint } from "jscad-electronics/vanilla"
 import { jscadToParasolid } from "jscad-to-parasolid"
 
 const model = getJscadModelForFootprint(
   "sheetmetal_channel_w28_l24_h16_t1_r2",
-  jscad,
+  // The renderer currently declares its adapter as the modeling implementation.
+  jscadPlanner as unknown as Parameters<typeof getJscadModelForFootprint>[1],
 )
 await Bun.write("channel.x_t", jscadToParasolid(model))
 ```
@@ -64,6 +71,16 @@ await Bun.write("channel.x_t", jscadToParasolid(model))
 `jscadToParasolidBodies(input)` exposes the resolved polygon bodies for inspection
 before serialization. Open meshes, degenerate faces, non-orientable meshes, and
 unsupported geometry fail instead of silently becoming surfaces.
+
+## Colors
+
+Colors are stored in the `.x_t` itself using standard Parasolid body
+(`SDL/TYSA_COLOUR_2`) and face (`SDL/TYSA_COLOUR`) attributes. Geometry colors
+override rendered-entry colors; polygon colors override the body default.
+Planner `colors.colorize(...)` operations are supported. Inputs accept normalized
+RGB/RGBA arrays, byte RGB arrays, hexadecimal strings, and CSS color names.
+Alpha is omitted: this release preserves RGB appearance, not transparency or
+material properties. Color display also depends on the importing CAD program.
 
 ## Validation and visual snapshots
 
@@ -90,11 +107,31 @@ JSCAD → .x_t → parasolid-kit → OpenCascade B-Rep → GLB → poppygl → P
 reader. It bridges the emitted native `.x_t` into OpenCascade; OpenCascade itself
 does not directly read Parasolid. Tests require complete conversion, valid solids,
 positive volume, and tessellation of every face, with healing disabled. They
-compare reconstructed dimensions and volume against the original JSCAD geometry.
-The resulting GLB is rendered with poppygl and compared with committed snapshots.
-Fixtures cover a translated and mirrored box, a through-hole, multiple bodies,
-SOIC8, a modelprinter sheet-metal channel, and a modelprinter NEMA8 motor. The
-box also exercises typed parsing and canonical reserialization before import.
+compare reconstructed dimensions, surface area, and volume against the original
+JSCAD geometry. The tessellated GLB is also checked for complete, consistently
+oriented triangle meshes and matching area and volume.
+
+Native RGB attributes are decoded by the independent reader and mapped to GLB
+faces through its topology records. No source-color sidecar is used. A canonical
+box round trip verifies a face override, and SOIC8 checks its housing/lead palette.
+
+Each model has two 640 × 480 poppygl snapshots: an upper view and the opposite
+underside view. The temporary display scene is centered and scaled to fit the
+camera; the exported GLB keeps its meter units. Every vertex must lie inside
+the camera frustum. This prevents poppygl's minimum near plane from clipping
+millimeter-sized components such as SOIC8 and 0402. A regression also checks
+that differently scaled copies produce the same complete preview.
+
+A checked-in PoppyGL patch gives coplanar surfaces deterministic depth priority,
+preventing stripes on flush DFN8 pads. It affects preview rasterization only;
+exported geometry and GLB buffers remain unchanged.
+
+The 16 native fixtures cover boxes, a through-hole, multiple bodies, SOIC8,
+0402, SOT223, DFN8, NEMA8 and NEMA17 motors, spur/helical/worm gears, a socket
+bolt, and sheet-metal channel/plate/angle models. Exact catalog strings, body
+counts, and features to inspect are in
+[catalog-models.ts](tests/fixtures/catalog-models.ts). The box also exercises
+typed parsing and canonical reserialization before import.
 
 CI runs the complete pipeline. Generated `.x_t`, `.glb`, PNG, and JSON validation
 reports are saved under `tests/visual/.artifacts/` and uploaded by CI. To update
@@ -102,6 +139,12 @@ snapshots intentionally, run `bun run test:update-snapshots` and inspect the ima
 
 This is independent structural and geometric validation of the supported subset.
 Import into Shapr3D or the Siemens Parasolid kernel has not yet been verified.
+
+The pinned `jscad-electronics` DIP8 model contains overlapping internal pin
+faces and is rejected as non-manifold. The exporter does not silently heal
+that source geometry. Gear fixtures use explicit subdivision counts, and the
+bolt fixture uses a smooth shank. Threaded bolts and large ribbon-screen
+assemblies are not covered by the routine snapshot suite.
 
 ## References
 
