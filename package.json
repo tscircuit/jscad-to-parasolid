@@ -1,6 +1,6 @@
 {
   "name": "jscad-to-parasolid",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Convert JSCAD and modelprinter geometry to Parasolid text files",
   "type": "module",
   "module": "./dist/index.js",
@@ -44,7 +44,7 @@
   "dependencies": {
     "@jscad/modeling": "^2.12.6",
     "jscad-planner": "^0.0.18",
-    "parasolidts": "^0.0.1"
+    "parasolidts": "^0.0.2"
   },
   "patchedDependencies": {
     "poppygl@0.0.30": "patches/poppygl@0.0.30.patch"

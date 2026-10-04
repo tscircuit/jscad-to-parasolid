@@ -30,7 +30,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - name: Install npm with trusted publishing support
-        run: npm install --global npm@11.9.0
+        run: npm install --global npm@12.2.0
       - name: Check release tag matches package version
         if: startsWith(github.ref, 'refs/tags/')
         run: test "$GITHUB_REF_NAME" = "v$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')"
