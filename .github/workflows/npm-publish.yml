@@ -1,0 +1,51 @@
+name: Publish to npm
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.9.0
+      - name: Check release tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: test "$GITHUB_REF_NAME" = "v$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')"
+      - run: bun install
+      - run: bun run typecheck
+      - run: bun run format:check
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native validation dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r scripts/validation/requirements.txt
+      - run: bun test
+      - name: Build and inspect package
+        run: npm pack --dry-run
+      - name: Publish using npm trusted publisher
+        run: npm publish --access public --provenance

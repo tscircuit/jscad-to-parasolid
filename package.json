@@ -3,16 +3,23 @@
   "version": "0.0.1",
   "description": "Convert JSCAD and modelprinter geometry to Parasolid text files",
   "type": "module",
-  "module": "lib/index.ts",
-  "main": "lib/index.ts",
-  "types": "lib/index.ts",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./lib/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "files": [
-    "lib"
+    "dist"
   ],
-  "repository": "https://github.com/tscircuit/jscad-to-parasolid",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tscircuit/jscad-to-parasolid.git"
+  },
   "license": "MIT",
   "scripts": {
     "test": "bun test",
@@ -21,7 +28,9 @@
     "format:check": "biome format .",
     "test:unit": "bun test tests/unit",
     "test:visual": "bun test tests/visual",
-    "test:update-snapshots": "BUN_UPDATE_SNAPSHOTS=1 bun test tests/visual"
+    "test:update-snapshots": "BUN_UPDATE_SNAPSHOTS=1 bun test tests/visual",
+    "build": "tsup lib/index.ts --format esm --dts --clean",
+    "prepack": "bun run build"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.14",
@@ -29,14 +38,19 @@
     "typescript": "^5.9.3",
     "jscad-electronics": "0.0.186",
     "poppygl": "0.0.30",
-    "looks-same": "10.0.1"
+    "looks-same": "10.0.1",
+    "tsup": "8.5.0"
   },
   "dependencies": {
     "@jscad/modeling": "^2.12.6",
     "jscad-planner": "^0.0.18",
-    "parasolidts": "github:tscircuit/parasolidts#a9a3ce6847919cd3911f97d24e796a307fa15e10"
+    "parasolidts": "^0.0.1"
   },
   "patchedDependencies": {
     "poppygl@0.0.30": "patches/poppygl@0.0.30.patch"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

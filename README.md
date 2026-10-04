@@ -15,11 +15,10 @@ Separate solids remain separate bodies.
 ## Install
 
 ```sh
-bun add github:tscircuit/jscad-to-parasolid
+bun add jscad-to-parasolid
 ```
 
-The package ships TypeScript source, following the handbook's GitHub installation
-convention. Use Bun or a TypeScript-aware bundler.
+The npm package ships compiled ES modules and TypeScript declarations.
 
 ## Export a model
 
@@ -151,3 +150,17 @@ assemblies are not covered by the routine snapshot suite.
 - [tscircuit repo bootstrapping](https://github.com/tscircuit/handbook/blob/main/guides/bootstrapping-repos.md)
 - [TypeScript parser libraries](https://github.com/tscircuit/handbook/blob/main/guides/ts-parser-libraries.md)
 - [jscad-to-step](https://github.com/tscircuit/jscad-to-step) and [stepts](https://github.com/tscircuit/stepts)
+
+## Publishing
+
+Releases use `.github/workflows/npm-publish.yml` on a `v<package-version>` tag
+or a manual run on `main`. The workflow validates tests, formatting, and types,
+builds the npm tarball, and publishes with GitHub OIDC and provenance. It does
+not use an npm token. Increment `package.json` before a new release.
+
+Configure the npm package's trusted publisher with GitHub organization
+`tscircuit`, repository `jscad-to-parasolid`, workflow filename `npm-publish.yml`,
+no environment name, and **Allow npm publish** enabled. See
+[npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
+A new package must first be created with an authenticated initial publish
+before its npm settings can be configured.
