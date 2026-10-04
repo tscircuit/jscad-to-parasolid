@@ -1,0 +1,12 @@
+node_modules/
+bun.lock
+bun.lockb
+.cursor/
+dist/
+.venv/
+__pycache__/
+artifacts/
+.artifacts/
+*.diff.png
+*.actual.png
+.DS_Store
