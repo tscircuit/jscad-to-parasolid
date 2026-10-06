@@ -71,7 +71,10 @@ await Bun.write("channel.x_t", jscadToParasolid(model))
 
 `jscadToParasolid(input, { mergeCoplanarFaces: false })` disables coplanar
 face merging. Merging and boundary extraction happen in this converter; the
-Parasolid writer serializes the explicitly supplied faces.
+converter constructs native `Body`, `Region`, `Shell`, `Face`, `Loop`, `Fin`,
+`Edge`, `Vertex`, `Point`, `Line`, and `Plane` entities. `parasolidts` serializes
+that entity graph with `Repository.getString()`. Geometry validation, vertex
+welding, T-junction splitting, winding repair, and coplanar merging all live here.
 `jscadToParasolidBodies(input)` exposes the unmerged resolved polygon bodies
 for inspection before serialization. Open meshes, degenerate faces,
 non-orientable meshes, and unsupported geometry fail instead of silently becoming
