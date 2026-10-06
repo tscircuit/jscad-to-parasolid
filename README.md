@@ -70,10 +70,12 @@ await Bun.write("channel.x_t", jscadToParasolid(model))
 ```
 
 `jscadToParasolid(input, { mergeCoplanarFaces: false })` disables coplanar
-face merging. Merging happens in the Parasolid writer;
+face merging. Merging and boundary extraction happen in this converter; the
+Parasolid writer serializes the explicitly supplied faces.
 `jscadToParasolidBodies(input)` exposes the unmerged resolved polygon bodies
-for inspection before serialization. Open meshes, degenerate faces, non-orientable meshes, and
-unsupported geometry fail instead of silently becoming surfaces.
+for inspection before serialization. Open meshes, degenerate faces,
+non-orientable meshes, and unsupported geometry fail instead of silently becoming
+surfaces.
 
 ## Colors
 
