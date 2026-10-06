@@ -81,5 +81,6 @@ export function jscadToParasolid(
 ): string {
   return createParasolidFromBodies(jscadToParasolidBodies(input, options), {
     units: options.units,
+    mergeCoplanarFaces: options.mergeCoplanarFaces,
   })
 }
