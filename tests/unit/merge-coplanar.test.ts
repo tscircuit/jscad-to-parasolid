@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import { Face, Loop, Point, parseRepository, getEntityColor } from "parasolidts"
-import type { ParasolidPoint, ParasolidColor } from "parasolidts"
+import type { ParasolidPoint, ParasolidColor } from "../../lib/build-parasolid"
 import { jscadToParasolid } from "../../lib"
 import { mergeCoplanarRegions } from "../../lib/merge-coplanar"
 import type { JscadToParasolidOptions } from "../../lib"
