@@ -98,14 +98,15 @@ for (const [name, modelString] of [
       geometries.length,
     )
     if (name === "soic8") {
-      // Pinned vanilla model has eight #fff lead bodies and one #555 housing.
+      // The released producer uses tinned #c4c7ca leads and one #555 housing.
+      const leadRgb = [196 / 255, 199 / 255, 202 / 255]
       expect(report.native_colors.palette).toEqual([
         [1 / 3, 1 / 3, 1 / 3],
-        [1, 1, 1],
+        leadRgb,
       ])
       expect(
         report.native_colors.body_colors.filter(({ rgb }) =>
-          rgb.every((value) => value === 1),
+          rgb.every((value, index) => value === leadRgb[index]),
         ),
       ).toHaveLength(8)
       expect(report.native_colors.uncolored_primitive_count).toBe(0)
