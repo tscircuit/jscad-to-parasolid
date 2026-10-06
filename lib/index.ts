@@ -1,4 +1,4 @@
-import { createParasolidFromBodies, normalizePolygons } from "parasolidts"
+import { buildParasolidRepository, normalizePolygons } from "./build-parasolid"
 import { geom3ToPolygons } from "./geom3-to-polygons"
 import { resolveGeometries } from "./resolve-geometries"
 import { splitConnectedShells } from "./split-connected-shells"
@@ -27,7 +27,7 @@ export type {
  * Resolve JSCAD geometry into world-coordinate polygon bodies, in input units.
  * No caller-owned geometry or matrices are mutated. RGB colors are preserved;
  * alpha is not represented by the supported native color attributes.
- * The X_T writer performs planarity and closed-manifold validation afterwards.
+ * The converter validates planarity and closed-manifold topology before serialization.
  */
 export function jscadToParasolidBodies(
   input: JscadToParasolidInput,
@@ -81,10 +81,10 @@ export function jscadToParasolid(
   options: JscadToParasolidOptions = {},
 ): string {
   const bodies = jscadToParasolidBodies(input, options)
-  return createParasolidFromBodies(
+  return buildParasolidRepository(
     options.mergeCoplanarFaces === false
       ? bodies
       : bodies.map((body) => mergeCoplanarBody(body, options.units)),
     { units: options.units },
-  )
+  ).getString()
 }
