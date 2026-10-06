@@ -3,6 +3,7 @@ import { geom3ToPolygons } from "./geom3-to-polygons"
 import { resolveGeometries } from "./resolve-geometries"
 import { splitConnectedShells } from "./split-connected-shells"
 import { normalizeColor } from "./normalize-color"
+import { mergeCoplanarBody } from "./merge-coplanar"
 import type {
   JscadToParasolidInput,
   JscadToParasolidOptions,
@@ -79,8 +80,11 @@ export function jscadToParasolid(
   input: JscadToParasolidInput,
   options: JscadToParasolidOptions = {},
 ): string {
-  return createParasolidFromBodies(jscadToParasolidBodies(input, options), {
-    units: options.units,
-    mergeCoplanarFaces: options.mergeCoplanarFaces,
-  })
+  const bodies = jscadToParasolidBodies(input, options)
+  return createParasolidFromBodies(
+    options.mergeCoplanarFaces === false
+      ? bodies
+      : bodies.map((body) => mergeCoplanarBody(body, options.units)),
+    { units: options.units },
+  )
 }
