@@ -46,10 +46,11 @@ export function buildBodyTopology(
     new Region({
       regionKind: "V",
       bodyRef: ref(body),
-      previousRegion: ref(solid),
+      nextRegion: ref(solid),
     }),
   )
-  solid.nextRegion = ref(exterior)
+  // XT requires the region-chain head to be the infinite exterior void.
+  solid.previousRegion = ref(exterior)
   const backShell = add(
     new Shell({ legacyBody: ref(body), regionRef: ref(solid) }),
   )
@@ -114,13 +115,15 @@ export function buildBodyTopology(
     linearPrecision: 1e-8,
     storageState: 1,
     bodyKind: 1,
+    // XT nominal geometry state must be 1 for externally written bodies.
+    geometryState: 1,
     nextBody: ref(nextBody),
     previousBody: ref(previousBody),
     legacyShell: ref(backShell),
     boundarySurfaces: ref(planes[0]),
     boundaryCurves: ref(edges[0]!.curve),
     boundaryPoints: ref(pointNodes[0]),
-    regionHead: ref(solid),
+    regionHead: ref(exterior),
     edgeHead: ref(edges[0]!.node),
     vertexHead: ref(vertices[0]),
   })
