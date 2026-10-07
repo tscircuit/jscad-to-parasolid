@@ -44,7 +44,7 @@
   "dependencies": {
     "@jscad/modeling": "^2.12.6",
     "jscad-planner": "^0.0.18",
-    "parasolidts": "^0.0.3"
+    "parasolidts": "^0.0.2 || ^0.0.3"
   },
   "patchedDependencies": {
     "poppygl@0.0.30": "patches/poppygl@0.0.30.patch"
