@@ -56,7 +56,7 @@ export function splitConnectedShells(polygons: Point3[][]): Point3[][][] {
   })
   const shells = [...groups.values()]
   // Some renderer-recorded extrusions have the entire boundary reversed. A
-  // single connected shell can safely be oriented outward, as the writer also
+  // single connected shell can safely be oriented outward, as topology construction also
   // does. An inward component alongside other shells may describe a cavity and
   // must not silently become an additional filled solid.
   if (shells.length === 1 && signedVolume(shells[0]!) < 0) {

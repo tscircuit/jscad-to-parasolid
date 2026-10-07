@@ -3,7 +3,7 @@ import jscad from "@jscad/modeling"
 import { parseRepository } from "parasolidts"
 import { jscadToParasolid, jscadToParasolidBodies } from "../../lib"
 
-test("shell splitting uses the writer's physical welding tolerance in either unit", () => {
+test("shell splitting uses the converter's physical welding tolerance in either unit", () => {
   const cube = jscad.primitives.cube({ size: 2 })
   for (const units of ["mm", "m"] as const) {
     const scale = units === "mm" ? 1 : 0.001
