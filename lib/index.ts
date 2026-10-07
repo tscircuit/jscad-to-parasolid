@@ -1,4 +1,5 @@
-import { buildParasolidRepository, normalizePolygons } from "./build-parasolid"
+import { buildParasolidRepository } from "./build-parasolid"
+import { normalizePolygons } from "./parasolid/normalize-polygons"
 import { geom3ToPolygons } from "./geom3-to-polygons"
 import { resolveGeometries } from "./resolve-geometries"
 import { splitConnectedShells } from "./split-connected-shells"

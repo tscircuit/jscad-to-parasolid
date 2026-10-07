@@ -1,7 +1,7 @@
 import type {
   ParasolidColor,
   ParasolidBodyInput as WriterBody,
-} from "./build-parasolid"
+} from "./parasolid/types"
 import type { ParasolidBodyInput } from "./types"
 
 type Point = [number, number, number]

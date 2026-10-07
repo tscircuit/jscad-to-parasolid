@@ -3,7 +3,7 @@ import type {
   ParasolidBodyInput as BuildBody,
   ParasolidPolygons,
   ParasolidWriteOptions,
-} from "../../lib/build-parasolid"
+} from "../../lib/parasolid/types"
 export const createParasolidFromBodies = (
   bodies: readonly BuildBody[],
   options: ParasolidWriteOptions = {},

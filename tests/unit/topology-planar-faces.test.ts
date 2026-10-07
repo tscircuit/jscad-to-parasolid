@@ -8,7 +8,7 @@ import type {
   ParasolidPoint,
   ParasolidBodyInput,
   ParasolidPlanarFace,
-} from "../../lib/build-parasolid"
+} from "../../lib/parasolid/types"
 
 const outer: ParasolidPoint[] = [
   [0, 0, 0],
