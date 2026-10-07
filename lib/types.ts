@@ -37,6 +37,8 @@ export type JscadToParasolidInput =
   | RenderedModel
 
 export interface JscadToParasolidOptions {
+  /** Merge adjacent coplanar CAD faces. Default true; curves remain faceted. */
+  readonly mergeCoplanarFaces?: boolean
   /** Input length unit. X_T coordinates are always written in metres. */
   readonly units?: "mm" | "m"
   /** Reserved for future X_T name attributes; not transmitted yet. */

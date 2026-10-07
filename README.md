@@ -4,8 +4,10 @@ Convert JSCAD geometry and rendered modelprinter models into native Parasolid
 text (`.x_t`) files. Uses [parasolidts](https://github.com/tscircuit/parasolidts)
 to write a boundary representation with planar faces and shared edges.
 
-This initial implementation exports closed, orientable polygon solids. JSCAD
-curves retain their polygon facets. RGB body and face colors are preserved.
+This initial implementation exports closed, orientable polygon solids. Adjacent
+coplanar polygons with matching colors are merged into single planar faces,
+including faces with hole boundaries. JSCAD curves retain their polygon facets.
+RGB body and face colors are preserved.
 Analytic curves, enclosed cavity shells, assemblies with constraints, and feature
 history are not exported.
 Separate solids remain separate bodies.
@@ -67,9 +69,16 @@ const model = getJscadModelForFootprint(
 await Bun.write("channel.x_t", jscadToParasolid(model))
 ```
 
-`jscadToParasolidBodies(input)` exposes the resolved polygon bodies for inspection
-before serialization. Open meshes, degenerate faces, non-orientable meshes, and
-unsupported geometry fail instead of silently becoming surfaces.
+`jscadToParasolid(input, { mergeCoplanarFaces: false })` disables coplanar
+face merging. Merging and boundary extraction happen in this converter; the
+converter constructs native `Body`, `Region`, `Shell`, `Face`, `Loop`, `Fin`,
+`Edge`, `Vertex`, `Point`, `Line`, and `Plane` entities. `parasolidts` serializes
+that entity graph with `Repository.getString()`. Geometry validation, vertex
+welding, T-junction splitting, winding repair, and coplanar merging all live here.
+`jscadToParasolidBodies(input)` exposes the unmerged resolved polygon bodies
+for inspection before serialization. Open meshes, degenerate faces,
+non-orientable meshes, and unsupported geometry fail instead of silently becoming
+surfaces.
 
 ## Colors
 
