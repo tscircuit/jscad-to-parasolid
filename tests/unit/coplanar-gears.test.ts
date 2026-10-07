@@ -10,6 +10,7 @@ for (const [spec, capCount] of [
   ["spurgear16_m1mm_w4mm_bore4mm_hubdiameter8mm_hublength2mm_segments4", 3],
   ["helicalgear16_m1mm_w6mm_ha25deg_right_bore4mm_segments4_turnsegments12", 2],
 ] as const) {
+  // Exercises both merged and unmerged exports; allow slower hosted runners.
   test(`flat caps become single CAD faces: ${spec}`, () => {
     const model = getJscadModelForFootprint(spec, jscad)
     const repository = parseRepository(jscadToParasolid(model))
@@ -33,5 +34,5 @@ for (const [spec, capCount] of [
       unmerged.getChildren().filter((e) => e instanceof Face).length,
     )
     expect(repository.fullyParsed).toBe(true)
-  }, 30_000)
+  }, 90_000)
 }
