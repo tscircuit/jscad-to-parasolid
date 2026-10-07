@@ -8,6 +8,7 @@ test("native body region chains start with the infinite exterior void", () => {
   for (const spec of [
     "spurgear16_m1mm_w4mm_segments4",
     "spurgear16_m1mm_w4mm_bore4mm_segments4",
+    "helicalgear16_m1mm_w4mm_ha25deg_right_bore4mm_segments4_turnsegments12",
     "soic8",
   ]) {
     const model = getJscadModelForFootprint(spec, jscad)
